@@ -11,8 +11,10 @@ import androidx.navigation.compose.rememberNavController
 import com.example.spotifyapp.ui.theme.SpotifyAppTheme
 import com.example.spotifyapp.view.LoginScreen
 import com.example.spotifyapp.view.RegisterScreen
+import com.example.spotifyapp.view.ReviewsScreen
 import com.example.spotifyapp.viewmodel.AuthViewModel
 import com.example.spotifyapp.view.SongsScreen
+import com.example.spotifyapp.viewmodel.ReviewsViewModel
 import com.example.spotifyapp.viewmodel.SongsViewModel
 
 class MainActivity : ComponentActivity() {
@@ -56,7 +58,17 @@ class MainActivity : ComponentActivity() {
                     }
                     composable("songs") {
                         val songsViewModel: SongsViewModel = viewModel()
-                        SongsScreen(viewModel = songsViewModel)
+                        SongsScreen(
+                            viewModel = songsViewModel,
+                            onGoToReviews = { navController.navigate("reviews") }
+                        )
+                    }
+                    composable("reviews") {
+                        val reviewsViewModel: ReviewsViewModel = viewModel()
+                        ReviewsScreen(
+                            viewModel = reviewsViewModel,
+                            onBack = { navController.popBackStack() }
+                        )
                     }
 
                 }

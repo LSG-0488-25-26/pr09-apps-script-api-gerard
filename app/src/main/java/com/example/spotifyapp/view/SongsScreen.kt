@@ -19,7 +19,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.sp
 
 @Composable
-fun SongsScreen(viewModel: SongsViewModel = viewModel()) {
+fun SongsScreen(viewModel: SongsViewModel = viewModel(), onGoToReviews: () -> Unit) {
 
     val songs by viewModel.songs.observeAsState(emptyList())
     val isLoading by viewModel.isLoading.observeAsState(false)
@@ -34,8 +34,16 @@ fun SongsScreen(viewModel: SongsViewModel = viewModel()) {
             .fillMaxSize()
             .padding(16.dp)
     ) {
-        Text("Cançons", style = MaterialTheme.typography.headlineMedium)
-
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text("Cançons", style = MaterialTheme.typography.headlineMedium)
+            TextButton(onClick = onGoToReviews) {
+                Text("Reviews")
+            }
+        }
         Spacer(modifier = Modifier.height(16.dp))
 
         when {
