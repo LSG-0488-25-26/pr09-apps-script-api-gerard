@@ -1,7 +1,15 @@
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
+}
+
+val secretsFile = project.rootProject.file("app/secrets.properties")
+val secrets = Properties()
+if (secretsFile.exists()) {
+    secrets.load(secretsFile.inputStream())
 }
 
 android {
@@ -52,6 +60,7 @@ dependencies {
     // Retrofit
     implementation("com.squareup.retrofit2:retrofit:2.9.0")
     implementation("com.squareup.retrofit2:converter-gson:2.9.0")
+    implementation("com.squareup.okhttp3:logging-interceptor:4.9.0")
 
     // ViewModel + LiveData
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.8.0")

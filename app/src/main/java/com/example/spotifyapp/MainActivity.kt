@@ -12,6 +12,8 @@ import com.example.spotifyapp.ui.theme.SpotifyAppTheme
 import com.example.spotifyapp.view.LoginScreen
 import com.example.spotifyapp.view.RegisterScreen
 import com.example.spotifyapp.viewmodel.AuthViewModel
+import com.example.spotifyapp.view.SongsScreen
+import com.example.spotifyapp.viewmodel.SongsViewModel
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -53,8 +55,10 @@ class MainActivity : ComponentActivity() {
                         )
                     }
                     composable("songs") {
-                        // Pròximament: SongsScreen
+                        val songsViewModel: SongsViewModel = viewModel()
+                        SongsScreen(viewModel = songsViewModel)
                     }
+
                 }
             }
         }
