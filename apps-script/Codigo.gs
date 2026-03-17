@@ -2,7 +2,6 @@
 // PR09 - Spotify API amb Apps Script
 // ==========================================
 
-const SPREADSHEET_ID = SpreadsheetApp.getActiveSpreadsheet().getId();
 const SONGS_SHEET = "Songs";
 const REVIEWS_SHEET = "Reviews";
 
@@ -17,9 +16,8 @@ function isValidApiKey(apiKey) {
 // ==========================================
 // doGet(e) - ENDPOINTS GET
 // ==========================================
-// Endpoint 1: GET /songs          → totes les cançons
-// Endpoint 2: GET /songs/search   → buscar per artista (?artist=...)
-// Endpoint 3: GET /reviews        → totes les reviews
+// Endpoint 1: GET songs    → totes les cançons
+// Endpoint 2: GET reviews  → totes les reviews
 // ==========================================
 function doGet(e) {
   const apiKey = e.parameter.api_key;
@@ -33,26 +31,19 @@ function doGet(e) {
   if (endpoint === "songs") {
     return getSongs();
 
-  } else if (endpoint === "songs/search") {
-    const artist = e.parameter.artist;
-    if (!artist) {
-      return buildResponse({ error: "Falta el paràmetre 'artist'" }, 400);
-    }
-    return searchSongsByArtist(artist);
-
   } else if (endpoint === "reviews") {
     return getReviews();
 
   } else {
-    return buildResponse({ error: "Endpoint no trobat. Usa: songs, songs/search, reviews" }, 404);
+    return buildResponse({ error: "Endpoint no trobat. Usa: songs, reviews" }, 404);
   }
 }
 
 // ==========================================
 // doPost(e) - ENDPOINTS POST
 // ==========================================
-// Endpoint 1: POST /reviews       → afegir una review
-// Endpoint 2: POST /songs         → afegir una cançó
+// Endpoint 1: POST reviews  → afegir una review
+// Endpoint 2: POST songs    → afegir una cançó
 // ==========================================
 function doPost(e) {
   const body = JSON.parse(e.postData.contents);
@@ -82,44 +73,15 @@ function getSongs() {
   const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SONGS_SHEET);
   const data = sheet.getDataRange().getValues();
   const headers = data[0];
-  const rows = data.slice(1, 51); // Limitem a 50 files per no sobrecarregar
+  const rows = data.slice(1, 51);
 
   const songs = rows.map(row => {
     let obj = {};
-    headers.forEach((header, i) => {
-      obj[header] = row[i];
-    });
+    headers.forEach((header, i) => { obj[header] = row[i]; });
     return obj;
   });
 
   return buildResponse({ songs: songs, total: songs.length }, 200);
-}
-
-function searchSongsByArtist(artist) {
-  const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SONGS_SHEET);
-  const data = sheet.getDataRange().getValues();
-  const headers = data[0];
-  const rows = data.slice(1);
-
-  // Busquem la columna d'artista
-  const artistColIndex = headers.findIndex(h => 
-    h.toLowerCase().includes("artist")
-  );
-
-  if (artistColIndex === -1) {
-    return buildResponse({ error: "Columna d'artista no trobada" }, 500);
-  }
-
-  const filtered = rows
-    .filter(row => row[artistColIndex].toString().toLowerCase().includes(artist.toLowerCase()))
-    .slice(0, 20)
-    .map(row => {
-      let obj = {};
-      headers.forEach((header, i) => { obj[header] = row[i]; });
-      return obj;
-    });
-
-  return buildResponse({ songs: filtered, total: filtered.length }, 200);
 }
 
 function getReviews() {
