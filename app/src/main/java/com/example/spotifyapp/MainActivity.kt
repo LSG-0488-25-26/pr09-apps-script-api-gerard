@@ -4,14 +4,14 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
 import com.example.spotifyapp.ui.theme.SpotifyAppTheme
+import com.example.spotifyapp.view.LoginScreen
+import com.example.spotifyapp.view.RegisterScreen
+import com.example.spotifyapp.viewmodel.AuthViewModel
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -19,29 +19,44 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             SpotifyAppTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Greeting(
-                        name = "Android",
-                        modifier = Modifier.padding(innerPadding)
-                    )
+                val navController = rememberNavController()
+                val authViewModel: AuthViewModel = viewModel()
+
+                NavHost(
+                    navController = navController,
+                    startDestination = "login"
+                ) {
+                    composable("login") {
+                        LoginScreen(
+                            viewModel = authViewModel,
+                            onLoginSuccess = {
+                                navController.navigate("songs") {
+                                    popUpTo("login") { inclusive = true }
+                                }
+                            },
+                            onGoToRegister = {
+                                navController.navigate("register")
+                            }
+                        )
+                    }
+                    composable("register") {
+                        RegisterScreen(
+                            viewModel = authViewModel,
+                            onRegisterSuccess = {
+                                navController.navigate("login") {
+                                    popUpTo("register") { inclusive = true }
+                                }
+                            },
+                            onGoToLogin = {
+                                navController.popBackStack()
+                            }
+                        )
+                    }
+                    composable("songs") {
+                        // Pròximament: SongsScreen
+                    }
                 }
             }
         }
-    }
-}
-
-@Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
-}
-
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    SpotifyAppTheme {
-        Greeting("Android")
     }
 }
