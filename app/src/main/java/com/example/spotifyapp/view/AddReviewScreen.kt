@@ -1,6 +1,7 @@
 package com.example.spotifyapp.view
 
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -8,9 +9,13 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.compose.ui.unit.sp
+import com.example.spotifyapp.ui.theme.SpotifyGreen
+import com.example.spotifyapp.ui.theme.SpotifyMediumGray
+import com.example.spotifyapp.ui.theme.SpotifyTextGray
 import com.example.spotifyapp.viewmodel.ReviewsViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -31,23 +36,40 @@ fun AddReviewScreen(
 
     LaunchedEffect(postResult) {
         when (postResult) {
-            "post_ok" -> onReviewAdded()
+            "post_ok"      -> onReviewAdded()
             "error_fields" -> errorMessage = "Omple els camps obligatoris"
             "error_server" -> errorMessage = "Error en enviar la review"
         }
     }
 
+    val textFieldColors = OutlinedTextFieldDefaults.colors(
+        focusedBorderColor = SpotifyGreen,
+        focusedLabelColor = SpotifyGreen,
+        cursorColor = SpotifyGreen,
+        unfocusedContainerColor = SpotifyMediumGray,
+        focusedContainerColor = SpotifyMediumGray,
+        unfocusedBorderColor = MaterialTheme.colorScheme.outline
+    )
+
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Nova Review") },
+                title = { Text("Nova Review", fontWeight = FontWeight.Bold) },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Enrere")
+                        Icon(
+                            Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = "Enrere",
+                            tint = MaterialTheme.colorScheme.onBackground
+                        )
                     }
-                }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.background
+                )
             )
-        }
+        },
+        containerColor = MaterialTheme.colorScheme.background
     ) { paddingValues ->
         Column(
             modifier = Modifier
@@ -58,26 +80,41 @@ fun AddReviewScreen(
         ) {
             Spacer(modifier = Modifier.height(8.dp))
 
+            Text(
+                text = "Escriu la teva review",
+                fontSize = 14.sp,
+                color = SpotifyTextGray
+            )
+
             OutlinedTextField(
                 value = trackName,
-                onValueChange = { trackName = it },
+                onValueChange = { trackName = it; errorMessage = "" },
                 label = { Text("Nom de la cançó *") },
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(12.dp),
+                colors = textFieldColors,
+                singleLine = true
             )
 
             OutlinedTextField(
                 value = artistName,
-                onValueChange = { artistName = it },
+                onValueChange = { artistName = it; errorMessage = "" },
                 label = { Text("Artista *") },
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(12.dp),
+                colors = textFieldColors,
+                singleLine = true
             )
 
             OutlinedTextField(
                 value = rating,
-                onValueChange = { rating = it },
+                onValueChange = { rating = it; errorMessage = "" },
                 label = { Text("Puntuació (1-10) *") },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(12.dp),
+                colors = textFieldColors,
+                singleLine = true
             )
 
             OutlinedTextField(
@@ -85,29 +122,50 @@ fun AddReviewScreen(
                 onValueChange = { comment = it },
                 label = { Text("Comentari (opcional)") },
                 modifier = Modifier.fillMaxWidth(),
-                minLines = 3
+                shape = RoundedCornerShape(12.dp),
+                colors = textFieldColors,
+                minLines = 3,
+                maxLines = 5
             )
 
             if (errorMessage.isNotBlank()) {
-                Text(errorMessage, color = MaterialTheme.colorScheme.error)
+                Text(
+                    text = errorMessage,
+                    color = MaterialTheme.colorScheme.error,
+                    fontSize = 13.sp
+                )
             }
+
+            Spacer(modifier = Modifier.height(4.dp))
 
             Button(
                 onClick = {
                     errorMessage = ""
                     viewModel.addReview(trackName, artistName, rating, comment)
                 },
-                modifier = Modifier.fillMaxWidth(),
-                enabled = !isLoading
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(52.dp),
+                shape = RoundedCornerShape(50.dp),
+                enabled = !isLoading,
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = SpotifyGreen,
+                    contentColor = MaterialTheme.colorScheme.onPrimary,
+                    disabledContainerColor = SpotifyGreen.copy(alpha = 0.4f)
+                )
             ) {
                 if (isLoading) {
                     CircularProgressIndicator(
-                        modifier = Modifier.size(20.dp),
+                        modifier = Modifier.size(22.dp),
                         strokeWidth = 2.dp,
                         color = MaterialTheme.colorScheme.onPrimary
                     )
                 } else {
-                    Text("Enviar Review")
+                    Text(
+                        text = "Enviar Review",
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 16.sp
+                    )
                 }
             }
         }

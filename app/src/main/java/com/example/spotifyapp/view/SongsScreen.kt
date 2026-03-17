@@ -1,62 +1,91 @@
 package com.example.spotifyapp.view
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.spotifyapp.model.Song
-import com.example.spotifyapp.viewmodel.SongsViewModel
-import androidx.compose.foundation.background
-import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.spotifyapp.model.Song
+import com.example.spotifyapp.ui.theme.SpotifyGreen
+import com.example.spotifyapp.ui.theme.SpotifyMediumGray
+import com.example.spotifyapp.ui.theme.SpotifyTextGray
+import com.example.spotifyapp.viewmodel.SongsViewModel
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SongsScreen(viewModel: SongsViewModel = viewModel(), onGoToReviews: () -> Unit) {
-
+fun SongsScreen(
+    viewModel: SongsViewModel = viewModel(),
+    onGoToReviews: () -> Unit
+) {
     val songs by viewModel.songs.observeAsState(emptyList())
     val isLoading by viewModel.isLoading.observeAsState(false)
     val error by viewModel.error.observeAsState("")
 
-    LaunchedEffect(Unit) {
-        viewModel.loadSongs()
-    }
+    LaunchedEffect(Unit) { viewModel.loadSongs() }
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp)
-    ) {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Text("Cançons", style = MaterialTheme.typography.headlineMedium)
-            TextButton(onClick = onGoToReviews) {
-                Text("Reviews")
-            }
-        }
-        Spacer(modifier = Modifier.height(16.dp))
-
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = {
+                    Text(
+                        text = "🎵 Spotify App",
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 20.sp
+                    )
+                },
+                actions = {
+                    TextButton(onClick = onGoToReviews) {
+                        Text(
+                            text = "Reviews",
+                            color = SpotifyGreen,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.background
+                )
+            )
+        },
+        containerColor = MaterialTheme.colorScheme.background
+    ) { paddingValues ->
         when {
             isLoading -> {
-                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    CircularProgressIndicator()
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    CircularProgressIndicator(color = SpotifyGreen)
                 }
             }
             error.isNotBlank() -> {
-                Text(error, color = MaterialTheme.colorScheme.error)
+                Box(
+                    modifier = Modifier.fillMaxSize().padding(32.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(error, color = MaterialTheme.colorScheme.error)
+                }
             }
             else -> {
-                LazyColumn {
+                LazyColumn(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(paddingValues)
+                        .padding(horizontal = 16.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp),
+                    contentPadding = PaddingValues(vertical = 12.dp)
+                ) {
                     items(songs) { song ->
                         SongItem(song = song)
                     }
@@ -69,62 +98,69 @@ fun SongsScreen(viewModel: SongsViewModel = viewModel(), onGoToReviews: () -> Un
 @Composable
 fun SongItem(song: Song) {
     Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 4.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceVariant
-        )
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(12.dp),
+        colors = CardDefaults.cardColors(containerColor = SpotifyMediumGray)
     ) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(16.dp),
+                .padding(12.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Column(
+            // Icona
+            Box(
                 modifier = Modifier
-                    .size(48.dp)
-                    .background(
-                        MaterialTheme.colorScheme.primary,
-                        shape = RoundedCornerShape(8.dp)
-                    ),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.Center
+                    .size(52.dp)
+                    .clip(RoundedCornerShape(8.dp))
+                    .background(SpotifyGreen.copy(alpha = 0.15f)),
+                contentAlignment = Alignment.Center
             ) {
-                Text(
-                    text = "🎵",
-                    fontSize = 22.sp
-                )
+                Text(text = "🎵", fontSize = 24.sp)
             }
 
-            Spacer(modifier = Modifier.width(16.dp))
+            Spacer(modifier = Modifier.width(14.dp))
 
             Column(modifier = Modifier.weight(1f)) {
                 Text(
                     text = song.track_name,
-                    style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold,
+                    fontSize = 15.sp,
+                    color = MaterialTheme.colorScheme.onSurface,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
                 Text(
                     text = song.artist_name,
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                    fontSize = 13.sp,
+                    color = SpotifyTextGray,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
                 )
                 Text(
-                    text = song.release_date,
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
+                    text = song.album_name,
+                    fontSize = 12.sp,
+                    color = SpotifyTextGray.copy(alpha = 0.6f),
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
                 )
             }
 
-            Text(
-                text = "⭐ ${song.spotify_popularity}",
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.primary
-            )
+            Spacer(modifier = Modifier.width(8.dp))
+
+            Column(horizontalAlignment = Alignment.End) {
+                Text(
+                    text = "⭐ ${song.spotify_popularity}",
+                    fontSize = 13.sp,
+                    color = SpotifyGreen,
+                    fontWeight = FontWeight.Bold
+                )
+                Text(
+                    text = song.release_date,
+                    fontSize = 11.sp,
+                    color = SpotifyTextGray.copy(alpha = 0.6f)
+                )
+            }
         }
     }
 }
