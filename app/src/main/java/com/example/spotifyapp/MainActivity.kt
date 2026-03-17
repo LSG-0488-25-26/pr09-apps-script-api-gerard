@@ -9,6 +9,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.spotifyapp.ui.theme.SpotifyAppTheme
+import com.example.spotifyapp.view.AddReviewScreen
 import com.example.spotifyapp.view.LoginScreen
 import com.example.spotifyapp.view.RegisterScreen
 import com.example.spotifyapp.view.ReviewsScreen
@@ -67,7 +68,20 @@ class MainActivity : ComponentActivity() {
                         val reviewsViewModel: ReviewsViewModel = viewModel()
                         ReviewsScreen(
                             viewModel = reviewsViewModel,
-                            onBack = { navController.popBackStack() }
+                            onBack = { navController.popBackStack() },
+                            onGoToAddReview = { navController.navigate("addReview") }
+                        )
+                    }
+                    composable("addReview") {
+                        val reviewsViewModel: ReviewsViewModel = viewModel()
+                        AddReviewScreen(
+                            viewModel = reviewsViewModel,
+                            onBack = { navController.popBackStack() },
+                            onReviewAdded = {
+                                navController.navigate("reviews") {
+                                    popUpTo("reviews") { inclusive = true }
+                                }
+                            }
                         )
                     }
 

@@ -20,7 +20,8 @@ import com.example.spotifyapp.viewmodel.ReviewsViewModel
 @Composable
 fun ReviewsScreen(
     viewModel: ReviewsViewModel = viewModel(),
-    onBack: () -> Unit
+    onBack: () -> Unit,
+    onGoToAddReview: () -> Unit
 ) {
     val reviews by viewModel.reviews.observeAsState(emptyList())
     val isLoading by viewModel.isLoading.observeAsState(false)
@@ -37,6 +38,11 @@ fun ReviewsScreen(
                 navigationIcon = {
                     IconButton(onClick = onBack) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Enrere")
+                    }
+                },
+                actions = {
+                    TextButton(onClick = onGoToAddReview) {
+                        Text("+ Afegir")
                     }
                 }
             )
