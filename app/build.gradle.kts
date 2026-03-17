@@ -8,6 +8,9 @@ android {
     namespace = "com.example.spotifyapp"
     compileSdk = 36
 
+    val secretsFile = rootProject.file("secrets.properties")
+    val secrets = org.jetbrains.kotlin.konan.properties.loadProperties(secretsFile.absolutePath)
+
     defaultConfig {
         applicationId = "com.example.spotifyapp"
         minSdk = 24
@@ -16,6 +19,10 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+
+        buildConfigField("String", "API_KEY", "\"${secrets["API_KEY"]}\"")
+        buildConfigField("String", "BASE_URL", "\"${secrets["BASE_URL"]}\"")
+
     }
 
     buildTypes {
@@ -36,10 +43,22 @@ android {
     }
     buildFeatures {
         compose = true
+        buildConfig = true
     }
 }
 
 dependencies {
+
+    // Retrofit
+    implementation("com.squareup.retrofit2:retrofit:2.9.0")
+    implementation("com.squareup.retrofit2:converter-gson:2.9.0")
+
+    // ViewModel + LiveData
+    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.8.0")
+    implementation("androidx.lifecycle:lifecycle-livedata-ktx:2.8.0")
+
+    // Navigation
+    implementation("androidx.navigation:navigation-compose:2.7.7")
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
