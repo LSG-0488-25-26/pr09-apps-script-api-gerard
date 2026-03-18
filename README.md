@@ -113,7 +113,7 @@ L'API està desplegada com a Web App de Google Apps Script sobre un Google Sheet
 
 > Vídeo demostrant el flux complet de l'aplicació: login, visualització de cançons, creació d'una review i verificació en temps real al Google Sheets.
 
-
+https://youtu.be/UayRos0AUbM
 
 ---
 
